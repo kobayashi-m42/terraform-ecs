@@ -6,3 +6,9 @@ module "vpc" {
 module "ecr" {
   source = "../../modules/aws/ecr"
 }
+
+module "ecs" {
+  source = "../../modules/aws/ecs"
+  vpc    = "${module.vpc.vpc}"
+  ecr    = "${module.ecr.ecr}"
+}
