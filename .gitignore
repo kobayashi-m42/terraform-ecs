@@ -16,3 +16,5 @@
 # IDEA Setting File
 .idea
 terraform-ecs.iml
+
+aws-ecs/providers/aws/terraform.tfvars
