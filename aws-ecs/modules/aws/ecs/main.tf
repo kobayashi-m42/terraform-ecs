@@ -73,7 +73,7 @@ data "template_file" "api_template_file" {
   template = "${file("../../modules/aws/ecs/task/ecs-api.json")}"
 
   vars {
-    aws_region      = "${lookup(var.ecs, "region")}"
+    aws_region      = "${lookup(var.common, "${terraform.env}.region", var.common["default.region"])}"
     php_image_url   = "${element(var.ecr["php_image_url"], 0)}"
     nginx_image_url = "${element(var.ecr["nginx_image_url"], 0)}"
     aws_logs_group  = "${aws_cloudwatch_log_group.ecs_api.name}"

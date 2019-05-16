@@ -7,8 +7,8 @@ module "ecr" {
   source = "../../modules/aws/ecr"
 }
 
-module "ecs" {
-  source = "../../modules/aws/ecs"
+module "fargate" {
+  source = "../../modules/aws/fargate"
   common = "${var.common}"
   vpc    = "${module.vpc.vpc}"
   ecr    = "${module.ecr.ecr}"
