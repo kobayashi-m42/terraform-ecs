@@ -8,7 +8,7 @@ variable "ecs" {
     default.volume_size           = "30"
     default.volume_type           = "gp2"
     default.ami                   = "ami-084cb340923dc7101"
-    default.service_desired_count = 1
+    default.service_desired_count = "1"
   }
 }
 
