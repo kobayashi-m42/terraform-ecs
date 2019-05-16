@@ -18,3 +18,4 @@
 terraform-ecs.iml
 
 aws-ecs/providers/aws/terraform.tfvars
+aws-fargate/providers/aws/terraform.tfvars
