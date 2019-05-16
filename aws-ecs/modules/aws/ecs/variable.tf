@@ -2,7 +2,6 @@ variable "ecs" {
   type = "map"
 
   default = {
-    region                        = "ap-northeast-1"
     default.name                  = "prod-ecs-api"
     dev.name                      = "dev-ecs-api"
     default.instance_type         = "t2.micro"
@@ -11,6 +10,12 @@ variable "ecs" {
     default.ami                   = "ami-084cb340923dc7101"
     default.service_desired_count = 1
   }
+}
+
+variable "common" {
+  type = "map"
+
+  default = {}
 }
 
 variable "vpc" {

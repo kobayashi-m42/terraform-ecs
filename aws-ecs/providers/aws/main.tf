@@ -9,6 +9,7 @@ module "ecr" {
 
 module "ecs" {
   source = "../../modules/aws/ecs"
+  common = "${var.common}"
   vpc    = "${module.vpc.vpc}"
   ecr    = "${module.ecr.ecr}"
 }
