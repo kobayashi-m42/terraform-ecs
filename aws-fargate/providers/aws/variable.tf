@@ -1,8 +1,8 @@
 variable "common" {
-  type = "map"
+  type = map(string)
 
   default = {
-    default.region  = "ap-northeast-1"
-    default.project = "aws-fargate"
+    "default.region"  = "ap-northeast-1"
+    "default.project" = "aws-fargate"
   }
 }
