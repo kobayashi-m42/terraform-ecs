@@ -1,6 +1,6 @@
 module "vpc" {
   source = "../../modules/aws/vpc"
-  common = "${var.common}"
+  common = var.common
 }
 
 module "ecr" {
@@ -9,7 +9,7 @@ module "ecr" {
 
 module "fargate" {
   source = "../../modules/aws/fargate"
-  common = "${var.common}"
-  vpc    = "${module.vpc.vpc}"
-  ecr    = "${module.ecr.ecr}"
+  common = var.common
+  vpc    = module.vpc.vpc
+  ecr    = module.ecr.ecr
 }

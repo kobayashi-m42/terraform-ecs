@@ -1,10 +1,10 @@
 resource "aws_security_group" "ecs_alb" {
-  name        = "${lookup(var.ecs, "${terraform.env}.name", var.ecs["default.name"])}-alb"
-  description = "Security Group to ${lookup(var.ecs, "${terraform.env}.name", var.ecs["default.name"])}-alb"
-  vpc_id      = "${lookup(var.vpc, "vpc_id")}"
+  name        = "${lookup(var.ecs, "${terraform.workspace}.name", var.ecs["default.name"])}-alb"
+  description = "Security Group to ${lookup(var.ecs, "${terraform.workspace}.name", var.ecs["default.name"])}-alb"
+  vpc_id      = var.vpc["vpc_id"]
 
-  tags {
-    Name = "${lookup(var.ecs, "${terraform.env}.name", var.ecs["default.name"])}-alb"
+  tags = {
+    Name = "${lookup(var.ecs, "${terraform.workspace}.name", var.ecs["default.name"])}-alb"
   }
 
   egress {
@@ -16,7 +16,7 @@ resource "aws_security_group" "ecs_alb" {
 }
 
 resource "aws_security_group_rule" "ecs_alb" {
-  security_group_id = "${aws_security_group.ecs_alb.id}"
+  security_group_id = aws_security_group.ecs_alb.id
   type              = "ingress"
   from_port         = 80
   to_port           = 80
@@ -25,50 +25,50 @@ resource "aws_security_group_rule" "ecs_alb" {
 }
 
 resource "aws_s3_bucket" "ecs_api_alb_logs" {
-  bucket        = "${lookup(var.ecs, "${terraform.env}.name", var.ecs["default.name"])}-alb-logs"
+  bucket        = "${lookup(var.ecs, "${terraform.workspace}.name", var.ecs["default.name"])}-alb-logs"
   force_destroy = true
 }
 
 data "aws_iam_policy_document" "put_ecs_api_alb_logs_policy" {
-  "statement" {
+  statement {
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.ecs_api_alb_logs.arn}/*"]
 
     principals {
       type        = "AWS"
-      identifiers = ["${data.aws_elb_service_account.aws_elb_service_account.id}"]
+      identifiers = [data.aws_elb_service_account.aws_elb_service_account.id]
     }
   }
 }
 
 resource "aws_s3_bucket_policy" "fargate_api" {
-  bucket = "${aws_s3_bucket.ecs_api_alb_logs.id}"
-  policy = "${data.aws_iam_policy_document.put_ecs_api_alb_logs_policy.json}"
+  bucket = aws_s3_bucket.ecs_api_alb_logs.id
+  policy = data.aws_iam_policy_document.put_ecs_api_alb_logs_policy.json
 }
 
 resource "aws_alb" "ecs_alb" {
-  name                       = "${lookup(var.ecs, "${terraform.env}.name", var.ecs["default.name"])}"
+  name                       = lookup(var.ecs, "${terraform.workspace}.name", var.ecs["default.name"])
   internal                   = false
   load_balancer_type         = "application"
-  security_groups            = ["${aws_security_group.ecs_alb.id}"]
-  subnets                    = ["${var.vpc["subnet_public_1a_id"]}", "${var.vpc["subnet_public_1c_id"]}", "${var.vpc["subnet_public_1d_id"]}"]
+  security_groups            = [aws_security_group.ecs_alb.id]
+  subnets                    = [var.vpc["subnet_public_1a_id"], var.vpc["subnet_public_1c_id"], var.vpc["subnet_public_1d_id"]]
   enable_deletion_protection = false
 
   access_logs {
     enabled = true
-    bucket  = "${aws_s3_bucket.ecs_api_alb_logs.bucket}"
+    bucket  = aws_s3_bucket.ecs_api_alb_logs.bucket
   }
 
-  tags {
-    Name = "${lookup(var.ecs, "${terraform.env}.name", var.ecs["default.name"])}-alb"
+  tags = {
+    Name = "${lookup(var.ecs, "${terraform.workspace}.name", var.ecs["default.name"])}-alb"
   }
 }
 
 resource "aws_alb_target_group" "ecs" {
-  name     = "${lookup(var.ecs, "${terraform.env}.name", var.ecs["default.name"])}"
+  name     = lookup(var.ecs, "${terraform.workspace}.name", var.ecs["default.name"])
   port     = 80
   protocol = "HTTP"
-  vpc_id   = "${lookup(var.vpc, "vpc_id")}"
+  vpc_id   = var.vpc["vpc_id"]
 
   health_check {
     path                = "/api/statuses"
@@ -81,12 +81,12 @@ resource "aws_alb_target_group" "ecs" {
 }
 
 resource "aws_alb_listener" "ecs_alb" {
-  load_balancer_arn = "${aws_alb.ecs_alb.id}"
+  load_balancer_arn = aws_alb.ecs_alb.id
   port              = 80
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = "${aws_alb_target_group.ecs.id}"
+    target_group_arn = aws_alb_target_group.ecs.id
     type             = "forward"
   }
 }
